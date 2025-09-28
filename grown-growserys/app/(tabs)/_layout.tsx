@@ -25,6 +25,16 @@ export default function TabLayout() {
           return <Ionicons name={iconName} size={size} color={color} />;
         },
         headerShown: false,
+            // 👇 Tab bar styles
+        tabBarActiveTintColor: "#531D1D",   // active icon/text color
+        tabBarInactiveTintColor: "#9E9E9E", // inactive color
+        tabBarStyle: {
+          backgroundColor: "#FDF7E9",       // background color
+          borderTopColor: "#ddd",           // top border
+          height: 60,                       // taller bar
+          paddingBottom: 5,
+          paddingTop: 5,
+        },
       })}
     >
       <Tabs.Screen name="account" options={{ title: "Account" }} />
