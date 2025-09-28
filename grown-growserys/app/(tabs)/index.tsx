@@ -7,11 +7,11 @@ export default function App() {
   const [searchQuery, setSearchQuery] = useState("");
 
   const suppliers = [
-    { id: 1, name: "Local Farm Stand", latitude: 37.779, longitude: -122.429 },
-    { id: 2, name: "Organic Market", latitude: 37.769, longitude: -122.419 },
-    { id: 3, name: "Urban Garden", latitude: 37.774, longitude: -122.414 },
+    { id: 1, name: "Cumboots Milk", latitude: 54.28, longitude: -0.45 },
+    { id: 2, name: "Bagles Lady", latitude: 54.28, longitude: -0.426 },
+    { id: 3, name: "Spence Butchers", latitude: 54.28, longitude: -0.404 },
   ];
-
+  
   const filtered = suppliers.filter((s) =>
     s.name.toLowerCase().includes(searchQuery.trim().toLowerCase())
   );
@@ -21,8 +21,8 @@ export default function App() {
       <MapView
         style={styles.map}
         initialRegion={{
-          latitude: 37.7749,
-          longitude: -122.4194,
+          latitude: 54.28,
+          longitude: -0.4,
           latitudeDelta: 0.05,
           longitudeDelta: 0.05,
         }}
