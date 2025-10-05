@@ -1,3 +1,6 @@
+
+import 'react-native-reanimated';
+
 import { Tabs } from 'expo-router';
 import React from 'react';
 
