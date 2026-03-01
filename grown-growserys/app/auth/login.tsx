@@ -1,68 +1,33 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, TextInput, Button, StyleSheet, Alert, Platform } from "react-native";
-import { auth, db } from "../../firebase";
 import {
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
+  View, Text, TouchableOpacity,
+  StyleSheet, Alert, Platform, Image,
+} from "react-native";
+import { auth } from "../../firebase";
+import {
   GoogleAuthProvider,
   FacebookAuthProvider,
   OAuthProvider,
   signInWithCredential,
   onAuthStateChanged,
 } from "firebase/auth";
-import { doc, setDoc } from "firebase/firestore";
 
 import * as Google from "expo-auth-session/providers/google";
 import * as Facebook from "expo-auth-session/providers/facebook";
 import * as AppleAuthentication from "expo-apple-authentication";
 
 export default function AuthScreen() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
   const [user, setUser] = useState<any>(null);
 
-  // --------- Persisted Auth State ---------
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
-      if (currentUser) console.log("User is signed in:", currentUser.uid);
     });
     return () => unsubscribe();
   }, []);
 
-  // ---------- Email Signup ----------
-  const handleEmailSignup = async () => {
-    if (!email || !password) return Alert.alert("Error", "Please enter email & password");
-    setLoading(true);
-    try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      const newUser = userCredential.user;
-      await setDoc(doc(db, "users", newUser.uid), { email, createdAt: new Date() });
-      Alert.alert("Success", "Account created!");
-    } catch (err: any) {
-      Alert.alert("Signup error", err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // ---------- Email Login ----------
-  const handleEmailLogin = async () => {
-    if (!email || !password) return Alert.alert("Error", "Please enter email & password");
-    setLoading(true);
-    try {
-      await signInWithEmailAndPassword(auth, email, password);
-      Alert.alert("Success", "Logged in!");
-    } catch (err: any) {
-      Alert.alert("Login error", err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   // ---------- Google Login ----------
-  const [request, response, promptAsync] = Google.useAuthRequest({
+  const [, response, promptAsync] = Google.useAuthRequest({
     iosClientId: "199905905793-5tcso51ov8uoglfl9bs0ci7n1flpnc1s.apps.googleusercontent.com",
     androidClientId: "YOUR_ANDROID_GOOGLE_CLIENT_ID.com.danieleves.growngroceries",
     webClientId: "YOUR_WEB_GOOGLE_CLIENT_ID.com.danieleves.growngroceries",
@@ -77,7 +42,7 @@ export default function AuthScreen() {
   }, [response]);
 
   // ---------- Facebook Login ----------
-  const [fbRequest, fbResponse, fbPromptAsync] = Facebook.useAuthRequest({
+  const [, fbResponse, fbPromptAsync] = Facebook.useAuthRequest({
     clientId: "<YOUR_FACEBOOK_APP_ID>",
   });
 
@@ -102,7 +67,7 @@ export default function AuthScreen() {
       const provider = new OAuthProvider("apple.com");
       const firebaseCredential = provider.credential({
         idToken: credential.identityToken!,
-        rawNonce: "nonce", // optionally generate a random nonce
+        rawNonce: "nonce",
       });
       signInWithCredential(auth, firebaseCredential).catch((err) => Alert.alert("Apple login error", err.message));
     } catch (err: any) {
@@ -110,46 +75,43 @@ export default function AuthScreen() {
     }
   };
 
-  // ---------- Render ----------
   if (user) {
     return (
       <View style={styles.container}>
         <Text style={styles.title}>Welcome, {user.email || user.displayName || "User"}!</Text>
-        <Button title="Logout" onPress={() => auth.signOut()} />
+        <TouchableOpacity style={styles.emailButton} onPress={() => auth.signOut()}>
+          <Text style={styles.emailButtonText}>Log out</Text>
+        </TouchableOpacity>
       </View>
     );
   }
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Sign Up / Login</Text>
-      <TextInput
-        placeholder="Email"
-        value={email}
-        onChangeText={setEmail}
-        style={styles.input}
-        keyboardType="email-address"
-        autoCapitalize="none"
-      />
-      <TextInput
-        placeholder="Password"
-        value={password}
-        onChangeText={setPassword}
-        style={styles.input}
-        secureTextEntry
-      />
-      <Button title="Sign Up" onPress={handleEmailSignup} />
-      <Button title="Login" onPress={handleEmailLogin} />
+      <Text style={styles.title}>Log in</Text>
 
-      <View style={{ height: 16 }} />
-      <Button title="Login with Google" onPress={() => promptAsync()} />
-      <Button title="Login with Facebook" onPress={() => fbPromptAsync()} />
+      {/* Google */}
+      <TouchableOpacity style={styles.googleButton} onPress={() => promptAsync()}>
+        <Image
+          source={{ uri: "https://developers.google.com/identity/images/g-logo.png" }}
+          style={styles.socialLogo}
+        />
+        <Text style={styles.googleButtonText}>Sign in with Google</Text>
+      </TouchableOpacity>
+
+      {/* Facebook */}
+      <TouchableOpacity style={styles.facebookButton} onPress={() => fbPromptAsync()}>
+        <Text style={styles.facebookF}>f</Text>
+        <Text style={styles.facebookButtonText}>Continue with Facebook</Text>
+      </TouchableOpacity>
+
+      {/* Apple */}
       {Platform.OS === "ios" && (
         <AppleAuthentication.AppleAuthenticationButton
           buttonType={AppleAuthentication.AppleAuthenticationButtonType.SIGN_IN}
           buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.BLACK}
           cornerRadius={8}
-          style={{ width: "100%", height: 44, marginTop: 8 }}
+          style={styles.appleButton}
           onPress={handleAppleLogin}
         />
       )}
@@ -158,7 +120,33 @@ export default function AuthScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: "center", padding: 20 },
-  title: { fontSize: 24, fontWeight: "bold", marginBottom: 20, textAlign: "center" },
-  input: { borderWidth: 1, borderColor: "#ccc", padding: 12, marginBottom: 12, borderRadius: 6 },
+  container: { flex: 1, justifyContent: "center", padding: 24, backgroundColor: "#FDF7E9" },
+  title: { fontSize: 28, fontWeight: "700", marginBottom: 24, textAlign: "center", color: "#531D1D" },
+
+  emailButton: {
+    backgroundColor: "#531D1D", borderRadius: 8,
+    paddingVertical: 14, alignItems: "center", marginBottom: 8,
+  },
+  emailButtonText: { color: "#fff", fontSize: 16, fontWeight: "600" },
+
+  // Google — white card style
+  googleButton: {
+    flexDirection: "row", alignItems: "center", justifyContent: "center",
+    backgroundColor: "#fff", borderRadius: 8, paddingVertical: 12,
+    marginBottom: 12, borderWidth: 1, borderColor: "#ddd",
+    shadowColor: "#000", shadowOpacity: 0.08, shadowRadius: 4, shadowOffset: { width: 0, height: 1 },
+    elevation: 2,
+  },
+  socialLogo: { width: 20, height: 20, marginRight: 10, resizeMode: "contain" },
+  googleButtonText: { color: "#3c4043", fontSize: 16, fontWeight: "500" },
+
+  // Facebook — blue style
+  facebookButton: {
+    flexDirection: "row", alignItems: "center", justifyContent: "center",
+    backgroundColor: "#1877F2", borderRadius: 8, paddingVertical: 12, marginBottom: 12,
+  },
+  facebookF: { color: "#fff", fontSize: 20, fontWeight: "800", marginRight: 10 },
+  facebookButtonText: { color: "#fff", fontSize: 16, fontWeight: "600" },
+
+  appleButton: { width: "100%", height: 50, marginBottom: 12 },
 });

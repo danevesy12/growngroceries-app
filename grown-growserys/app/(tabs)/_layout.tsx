@@ -1,12 +1,9 @@
 import 'react-native-reanimated'; // must be first
 import React from 'react';
+import { Text } from 'react-native';
 import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { useColorScheme } from '@/hooks/use-color-scheme';
-
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
-
   return (
     <Tabs
       screenOptions={({ route }) => {
@@ -18,12 +15,25 @@ export default function TabLayout() {
           case 'index':
             iconName = 'map';
             break;
-          case 'suppliers':
-            iconName = 'list';
-            break;
           case 'basket':
             iconName = 'cart';
             break;
+        }
+
+        if (route.name === 'suppliers') {
+          return {
+            tabBarIcon: ({ size, focused }) => <Text style={{ fontSize: size, opacity: focused ? 1 : 0.4 }}>🧑‍🌾</Text>,
+            headerShown: false,
+            tabBarActiveTintColor: '#531D1D',
+            tabBarInactiveTintColor: '#9E9E9E',
+            tabBarStyle: {
+              backgroundColor: '#FDF7E9',
+              borderTopColor: '#ddd',
+              height: 60,
+              paddingBottom: 5,
+              paddingTop: 5,
+            },
+          };
         }
 
         return {
