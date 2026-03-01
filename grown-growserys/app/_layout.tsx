@@ -2,34 +2,40 @@
 import 'react-native-reanimated';
 
 import React from 'react';
-import { Stack } from 'expo-router';
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { StatusBar } from 'expo-status-bar';
+import { Tabs } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 
-// 👇 This replaces `unstable_settings` in newer expo-router versions
-export const unstable_settings = {
-  initialRouteName: '(tabs)',
-};
-
-export default function RootLayout() {
+export default function TabLayout() {
   const colorScheme = useColorScheme();
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      {/* This Stack contains the main (tabs) layout and any modals or extras */}
-      <Stack>
-        <Stack.Screen
-          name="(tabs)"
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="modal"
-          options={{ presentation: 'modal', title: 'Modal' }}
-        />
-      </Stack>
-
-      <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
-    </ThemeProvider>
+    <Tabs
+      screenOptions={({ route }) => ({
+        tabBarIcon: ({ color, size }) => {
+          let iconName: keyof typeof Ionicons.glyphMap = 'ellipse';
+          if (route.name === 'account') iconName = 'person';
+          else if (route.name === 'index') iconName = 'map';
+          else if (route.name === 'suppliers') iconName = 'list';
+          else if (route.name === 'basket') iconName = 'cart';
+          return <Ionicons name={iconName} size={size} color={color} />;
+        },
+        headerShown: false,
+        tabBarActiveTintColor: '#531D1D',
+        tabBarInactiveTintColor: '#9E9E9E',
+        tabBarStyle: {
+          backgroundColor: '#FDF7E9',
+          borderTopColor: '#ddd',
+          height: 60,
+          paddingBottom: 5,
+          paddingTop: 5,
+        },
+      })}
+    >
+      <Tabs.Screen name="account" options={{ title: 'Account' }} />
+      <Tabs.Screen name="index" options={{ title: 'Map' }} />
+      <Tabs.Screen name="suppliers" options={{ title: 'Suppliers' }} />
+      <Tabs.Screen name="basket" options={{ title: 'Basket', tabBarBadge: 0 }} />
+    </Tabs>
   );
 }
