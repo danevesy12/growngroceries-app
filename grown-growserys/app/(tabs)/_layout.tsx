@@ -1,8 +1,10 @@
 import 'react-native-reanimated'; // must be first
 import React from 'react';
-import { Text } from 'react-native';
+import { Image } from 'react-native';
 import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+
+const logoIcon = require('../../assets/images/logo.png');
 export default function TabLayout() {
   return (
     <Tabs
@@ -12,17 +14,16 @@ export default function TabLayout() {
           case 'account':
             iconName = 'person';
             break;
-          case 'index':
-            iconName = 'map';
-            break;
           case 'basket':
             iconName = 'cart';
             break;
         }
 
-        if (route.name === 'suppliers') {
+        if (route.name === 'index') {
           return {
-            tabBarIcon: ({ size, focused }) => <Text style={{ fontSize: size, opacity: focused ? 1 : 0.4 }}>🧑‍🌾</Text>,
+            tabBarIcon: ({ focused, size }) => (
+              <Image source={logoIcon} style={{ width: size, height: size, opacity: focused ? 1 : 0.4 }} resizeMode="contain" />
+            ),
             headerShown: false,
             tabBarActiveTintColor: '#531D1D',
             tabBarInactiveTintColor: '#9E9E9E',
@@ -52,8 +53,7 @@ export default function TabLayout() {
       }}
     >
       <Tabs.Screen name="account" options={{ title: 'Account' }} />
-      <Tabs.Screen name="index" options={{ title: 'Map' }} />
-      <Tabs.Screen name="suppliers" options={{ title: 'Suppliers' }} />
+      <Tabs.Screen name="index" options={{ title: 'Suppliers' }} />
       <Tabs.Screen name="basket" options={{ title: 'Basket', tabBarBadge: 0 }} />
     </Tabs>
   );
